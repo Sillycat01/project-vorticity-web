@@ -16,15 +16,21 @@
 - [ ] Validate WRF 4.8.0 + WPS 4.7.0 compatibility on a clean system
 - [ ] CI build and runtime smoke test
 
-## Preprocessing and data
-- [ ] Domain wizard and namelist.wps editor
-- [ ] Geogrid static-data manager and automatic static-data download
-- [ ] GRIB data provider integrations
-- [ ] Vtable selection and ungrib/metgrid orchestration
-- [ ] Input validation and preprocessing reports
+## Real-data forecast pipeline
+- [x] Single-domain WPS namelist generation
+- [x] geogrid → ungrib → metgrid orchestration
+- [x] WRF namelist generation and real.exe / wrf.exe run driver
+- [x] Timestamped forecast run directories and logs
+- [x] Windows GUI controls to configure and launch a forecast
+- [ ] Automated WPS static-geography dataset setup
+- [ ] GRIB data-provider integration and automatic cycle download
+- [ ] Validate vertical-level metadata and physics against supported data providers
+- [ ] Successful end-to-end forecast test on a clean WSL2 machine
+- [ ] Scientific output validation against observations/reference forecasts
 
 ## Forecast and visualization
-- [ ] namelist.input wizard
+- [ ] Domain wizard and multi-domain support
+- [ ] namelist.input / namelist.wps graphical editors
 - [ ] WRF run manager, progress, restart and cancellation
 - [ ] Output inspection and plotting
 - [ ] Meteorological map viewer
