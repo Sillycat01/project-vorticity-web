@@ -74,11 +74,14 @@ echo "Project Vorticity forecast run: $RUN_ID"
 echo "Run directory: $RUN_DIR"
 echo "Log: $LOG"
 
-read -r RUN_DAYS RUN_HOURS RUN_MINUTES RUN_SECONDS < <(python3 - "$PV_START" "$PV_END" <<'PY'
+DURATION_FIELDS="$(python3 - "$PV_START" "$PV_END" <<'PY'
 import datetime, sys
 fmt = "%Y-%m-%d_%H:%M:%S"
-start = datetime.datetime.strptime(sys.argv[1], fmt)
-end = datetime.datetime.strptime(sys.argv[2], fmt)
+try:
+    start = datetime.datetime.strptime(sys.argv[1], fmt)
+    end = datetime.datetime.strptime(sys.argv[2], fmt)
+except ValueError as exc:
+    raise SystemExit(f"Date-time must use YYYY-MM-DD_HH:MM:SS: {exc}")
 seconds = int((end - start).total_seconds())
 if seconds <= 0:
     raise SystemExit("PV_END must be later than PV_START")
@@ -87,7 +90,8 @@ hours, rem = divmod(rem, 3600)
 minutes, secs = divmod(rem, 60)
 print(days, hours, minutes, secs)
 PY
-) || fail "Invalid start/end date-time."
+)" || fail "Invalid start/end date-time."
+read -r RUN_DAYS RUN_HOURS RUN_MINUTES RUN_SECONDS <<< "$DURATION_FIELDS"
 TOTAL_SECONDS=$((RUN_DAYS*86400 + RUN_HOURS*3600 + RUN_MINUTES*60 + RUN_SECONDS))
 (( TOTAL_SECONDS % PV_INTERVAL_SECONDS == 0 )) || fail "Forecast duration must be divisible by PV_INTERVAL_SECONDS."
 
