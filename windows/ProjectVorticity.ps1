@@ -167,6 +167,7 @@ $setup.Add_Click({
     $status.Text = "Installing Linux build dependencies..."
     Say "Installing compiler, MPI, NetCDF and WPS build dependencies as WSL root..."
 
+    $scanCommand = "cd $linuxQ && chmod +x scripts/*.sh && ./scripts/status.sh"
     $depsCommand = "bash $linuxQ/scripts/install-dependencies.sh"
     $afterDeps = {
         param($code)
@@ -177,7 +178,7 @@ $setup.Add_Click({
             return
         }
         Say "Dependencies installed. Checking for existing WRF/WPS and obtaining missing source code..."
-        $sourceCommand = "cd $linuxQ && chmod +x scripts/*.sh && PV_ASSUME_YES=1 PV_INSTALL_DEPS=false ./scripts/install.sh"
+        $sourceCommand = "cd $linuxQ && PV_ASSUME_YES=1 PV_INSTALL_DEPS=false ./scripts/install.sh"
         $afterSources = {
             param($sourceCode)
             $setup.Enabled = $true; $build.Enabled = $true; $scan.Enabled = $true
@@ -187,7 +188,15 @@ $setup.Add_Click({
         }.GetNewClosure()
         Start-WslTask $d $sourceCommand $false $afterSources
     }.GetNewClosure()
-    Start-WslTask $d $depsCommand $true $afterDeps
+    $afterScan = {
+        param($scanCode)
+        if ($scanCode -ne 0) {
+            Say "The initial status scan returned an error; continuing with dependency setup."
+        }
+        Say "Initial scan complete. Installing any missing build packages..."
+        Start-WslTask $d $depsCommand $true $afterDeps
+    }.GetNewClosure()
+    Start-WslTask $d $scanCommand $false $afterScan
 })
 
 $build.Add_Click({
