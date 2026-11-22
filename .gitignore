@@ -1,0 +1,7 @@
+config/local.env
+*.log
+*.out
+*.mod
+*.o
+*.exe
+build/
