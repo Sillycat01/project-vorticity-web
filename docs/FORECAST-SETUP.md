@@ -23,6 +23,7 @@ Edit the values and save the file:
 - `PV_GRIB_DIR`: directory containing the GRIB files for the chosen forecast cycle
 - `PV_VTABLE`: matching WPS Vtable name, without the `Vtable.` prefix
 - `PV_INTERVAL_SECONDS`: interval between GRIB analyses/forecast fields
+- `PV_NUM_METGRID_LEVELS`, `PV_NUM_METGRID_SOIL_LEVELS`, `PV_NUM_SOIL_LAYERS`: vertical/soil level counts that must match the selected data and WPS output
 - Grid dimensions, spacing, projection and MPI rank count
 
 The example uses one 100 x 100 grid at 12-km spacing. It is only a starter configuration. Select a domain, grid spacing, projection parameters and physics suitable for the region, terrain, data source and forecast objective. The example physics suite is not a universal best choice.
@@ -44,6 +45,6 @@ The expected final products are `wrfout_d01_*` NetCDF files in the run's `WRF` f
 - The current runner supports one domain and the ARW core only.
 - It does not download GRIB forecasts or static geography automatically.
 - The GRIB provider, Vtable, forecast interval, projection, domain and physics must be mutually compatible.
-- The starter WRF namelist assumes 34 metgrid atmospheric levels and 4 soil levels. If your input dataset has different vertical/soil metadata, update the namelist generator before using it.
+- The starter WRF namelist defaults to 34 metgrid atmospheric levels and 4 soil levels. Set the corresponding level-count values in `forecast.env` to match the selected input dataset and generated WPS fields.
 - A successful process exit is not scientific validation. Check WRF logs for CFL errors, missing fields, boundary problems and model instability; compare output against observations and a trusted forecast.
 - Do not use this preview for emergency decisions or operational safety forecasting.
