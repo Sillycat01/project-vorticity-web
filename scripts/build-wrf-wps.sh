@@ -41,7 +41,7 @@ choose_gnu_dmpar() {
     {
       line=tolower($0)
       if (line ~ /^[[:space:]]*[0-9]+[.)][[:space:]]/ &&
-          line ~ /gnu/ && line ~ /gfortran/ && line ~ /gcc/ && line ~ /dmpar/) {
+          line ~ /gfortran/ && line ~ /dmpar/) {
         match($0, /^[[:space:]]*[0-9]+/)
         print substr($0, RSTART, RLENGTH)
         exit
