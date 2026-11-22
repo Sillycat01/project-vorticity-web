@@ -85,8 +85,8 @@ build_wps() {
   local choice
   choice="$(choose_gnu_dmpar "$WPS_DIR" "" "WPS")"
   echo "[WPS] Selecting configure option $choice (must match WRF GNU/OpenMPI dmpar)."
-  printf '%s\n' "$choice" | ./configure
-  echo "[WPS] Compiling..."
+  printf '%s\n' "$choice" | ./configure --build-grib2-libs
+  echo "[WPS] Compiling with bundled GRIB2 libraries..."
   ./compile
   for exe in geogrid.exe ungrib.exe metgrid.exe; do
     [[ -x "$exe" ]] || fail "WPS compile finished without $exe."
