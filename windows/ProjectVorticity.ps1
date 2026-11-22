@@ -99,7 +99,8 @@ function Start-WslTask([string]$distro, [string]$command, [bool]$asRoot, [script
         param($sender,$e)
         if ($e.Data) {
             $line = $e.Data
-            $form.BeginInvoke([Action]{ Say $line }.GetNewClosure()) | Out-Null
+            $ui = { Say $line }.GetNewClosure()
+            $form.BeginInvoke([Action]$ui) | Out-Null
         }
     }.GetNewClosure()
     $exitHandler = {
