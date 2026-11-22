@@ -126,10 +126,14 @@ cat > "$WRF_WORK/namelist.input" <<EOF
  start_month                         = ${PV_START:5:2},
  start_day                           = ${PV_START:8:2},
  start_hour                          = ${PV_START:11:2},
+ start_minute                        = ${PV_START:14:2},
+ start_second                        = ${PV_START:17:2},
  end_year                            = ${PV_END:0:4},
  end_month                           = ${PV_END:5:2},
  end_day                             = ${PV_END:8:2},
  end_hour                            = ${PV_END:11:2},
+ end_minute                          = ${PV_END:14:2},
+ end_second                          = ${PV_END:17:2},
  interval_seconds                    = $PV_INTERVAL_SECONDS,
  input_from_file                     = .true.,
  history_interval                    = $PV_HISTORY_MINUTES,
@@ -220,7 +224,7 @@ echo "[4/6] Running metgrid..."
 MET_FILES=(met_em.d01.*.nc)
 (("${#MET_FILES[@]}" > 0)) || fail "metgrid produced no met_em files."
 echo "[5/6] Preparing WRF run directory..."
-cp -a "$WRF_DIR/run/." "$WRF_WORK/"
+cp -an "$WRF_DIR/run/." "$WRF_WORK/"
 cp "$WRF_DIR/main/real.exe" "$WRF_DIR/main/wrf.exe" "$WRF_WORK/"
 cp "$WPS_WORK"/met_em.d01.*.nc "$WRF_WORK/"
 cd "$WRF_WORK"
