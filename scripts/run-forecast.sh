@@ -41,15 +41,27 @@ PV_GEOG_RES="${PV_GEOG_RES:-default}"
 
 [[ -d "$PV_GEOG_DIR" ]] || fail "Static geography directory does not exist: $PV_GEOG_DIR"
 [[ -d "$PV_GRIB_DIR" ]] || fail "GRIB directory does not exist: $PV_GRIB_DIR"
+[[ "$PV_GEOG_DIR" != *"'"* && "$PV_GRIB_DIR" != *"'"* ]] || fail "Data paths cannot contain single-quote characters."
 [[ "$PV_E_WE" =~ ^[0-9]+$ && "$PV_E_SN" =~ ^[0-9]+$ && "$PV_DX" =~ ^[0-9]+$ && "$PV_DY" =~ ^[0-9]+$ ]] || fail "Grid dimensions and spacing must be positive integers."
 [[ "$PV_MPI_RANKS" =~ ^[1-9][0-9]*$ ]] || fail "PV_MPI_RANKS must be a positive integer."
 [[ "$PV_INTERVAL_SECONDS" =~ ^[1-9][0-9]*$ ]] || fail "PV_INTERVAL_SECONDS must be a positive integer."
+python3 - "$PV_CENTER_LAT" "$PV_CENTER_LON" "$PV_TRUELAT1" "$PV_TRUELAT2" "$PV_STAND_LON" <<'PY'
+import sys
+values = [float(x) for x in sys.argv[1:]]
+lat, lon, t1, t2, stand = values
+if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+    raise SystemExit("Forecast centre latitude/longitude are out of range.")
+if not (-90 <= t1 <= 90 and -90 <= t2 <= 90 and -180 <= stand <= 180):
+    raise SystemExit("Projection true latitudes/standard longitude are out of range.")
+PY
 [[ -f "$WPS_DIR/ungrib/Variable_Tables/Vtable.$PV_VTABLE" ]] || fail "WPS Vtable not found: Vtable.$PV_VTABLE"
 
 shopt -s nullglob
-GRIB_FILES=("$PV_GRIB_DIR"/*)
-(("${#GRIB_FILES[@]}" > 0)) || fail "No files found in PV_GRIB_DIR."
-for f in "${GRIB_FILES[@]}"; do [[ -f "$f" ]] || continue; done
+GRIB_FILES=()
+for f in "$PV_GRIB_DIR"/*; do
+  [[ -f "$f" ]] && GRIB_FILES+=("$f")
+done
+(("${#GRIB_FILES[@]}" > 0)) || fail "No regular files found in PV_GRIB_DIR."
 
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
 RUN_DIR="$RUNS_DIR/$RUN_ID"
