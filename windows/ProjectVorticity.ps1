@@ -45,7 +45,6 @@ $build.Location = New-Object Drawing.Point(316,126)
 $build.Size = New-Object Drawing.Size(220,42)
 $form.Controls.Add($build)
 
-$log = New-Object Windows.Forms.TextBox
 $configure = New-Object Windows.Forms.Button
 $configure.Text = "3. Configure forecast"
 $configure.Location = New-Object Drawing.Point(22,176)
