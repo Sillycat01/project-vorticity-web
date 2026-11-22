@@ -38,6 +38,9 @@ PV_MPI_RANKS="${PV_MPI_RANKS:-2}"
 PV_HISTORY_MINUTES="${PV_HISTORY_MINUTES:-60}"
 PV_TIME_STEP="${PV_TIME_STEP:-$((PV_DX / 1000 * 6))}"
 PV_GEOG_RES="${PV_GEOG_RES:-default}"
+PV_NUM_METGRID_LEVELS="${PV_NUM_METGRID_LEVELS:-34}"
+PV_NUM_METGRID_SOIL_LEVELS="${PV_NUM_METGRID_SOIL_LEVELS:-4}"
+PV_NUM_SOIL_LAYERS="${PV_NUM_SOIL_LAYERS:-4}"
 
 [[ -d "$PV_GEOG_DIR" ]] || fail "Static geography directory does not exist: $PV_GEOG_DIR"
 [[ -d "$PV_GRIB_DIR" ]] || fail "GRIB directory does not exist: $PV_GRIB_DIR"
@@ -45,6 +48,7 @@ PV_GEOG_RES="${PV_GEOG_RES:-default}"
 [[ "$PV_E_WE" =~ ^[0-9]+$ && "$PV_E_SN" =~ ^[0-9]+$ && "$PV_DX" =~ ^[0-9]+$ && "$PV_DY" =~ ^[0-9]+$ ]] || fail "Grid dimensions and spacing must be positive integers."
 [[ "$PV_MPI_RANKS" =~ ^[1-9][0-9]*$ ]] || fail "PV_MPI_RANKS must be a positive integer."
 [[ "$PV_INTERVAL_SECONDS" =~ ^[1-9][0-9]*$ ]] || fail "PV_INTERVAL_SECONDS must be a positive integer."
+[[ "$PV_NUM_METGRID_LEVELS" =~ ^[1-9][0-9]*$ && "$PV_NUM_METGRID_SOIL_LEVELS" =~ ^[1-9][0-9]*$ && "$PV_NUM_SOIL_LAYERS" =~ ^[1-9][0-9]*$ ]] || fail "Metgrid and soil level counts must be positive integers."
 python3 - "$PV_CENTER_LAT" "$PV_CENTER_LON" "$PV_TRUELAT1" "$PV_TRUELAT2" "$PV_STAND_LON" <<'PY'
 import sys
 values = [float(x) for x in sys.argv[1:]]
@@ -169,8 +173,8 @@ cat > "$WRF_WORK/namelist.input" <<EOF
  e_sn                                = $PV_E_SN,
  e_vert                              = 45,
  p_top_requested                     = 5000,
- num_metgrid_levels                  = 34,
- num_metgrid_soil_levels             = 4,
+ num_metgrid_levels                  = $PV_NUM_METGRID_LEVELS,
+ num_metgrid_soil_levels             = $PV_NUM_METGRID_SOIL_LEVELS,
  dx                                  = $PV_DX,
  dy                                  = $PV_DY,
  grid_id                             = 1,
@@ -197,7 +201,7 @@ cat > "$WRF_WORK/namelist.input" <<EOF
  ifsnow                              = 1,
  icloud                              = 1,
  surface_input_source                = 1,
- num_soil_layers                     = 4,
+ num_soil_layers                     = $PV_NUM_SOIL_LAYERS,
 /
 &dynamics
  w_damping                           = 1,
