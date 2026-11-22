@@ -9,6 +9,11 @@ PV_INSTALL_DEPS_OVERRIDE="${PV_INSTALL_DEPS:-}"
 source "$CONFIG"
 if [[ -n "$PV_INSTALL_DEPS_OVERRIDE" ]]; then PV_INSTALL_DEPS="$PV_INSTALL_DEPS_OVERRIDE"; fi
 mkdir -p "$PV_SRC" "$PV_BUILD" "$PV_LOG"
+mkdir -p "$PV_ROOT/config"
+if [[ -f "$ROOT_DIR/config/example-forecast.env" && ! -f "$PV_ROOT/config/forecast.env" ]]; then
+  cp "$ROOT_DIR/config/example-forecast.env" "$PV_ROOT/config/forecast.env"
+  echo "Created $PV_ROOT/config/forecast.env from the example template."
+fi
 LOG_FILE="$PV_LOG/install-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo "=== Project Vorticity installer ==="
