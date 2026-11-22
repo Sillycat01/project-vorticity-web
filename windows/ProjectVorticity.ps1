@@ -46,8 +46,21 @@ $build.Size = New-Object Drawing.Size(220,42)
 $form.Controls.Add($build)
 
 $log = New-Object Windows.Forms.TextBox
-$log.Location = New-Object Drawing.Point(22,184)
-$log.Size = New-Object Drawing.Size(760,385)
+$configure = New-Object Windows.Forms.Button
+$configure.Text = "3. Configure forecast"
+$configure.Location = New-Object Drawing.Point(22,176)
+$configure.Size = New-Object Drawing.Size(250,38)
+$form.Controls.Add($configure)
+
+$run = New-Object Windows.Forms.Button
+$run.Text = "4. Run forecast"
+$run.Location = New-Object Drawing.Point(282,176)
+$run.Size = New-Object Drawing.Size(220,38)
+$form.Controls.Add($run)
+
+$log = New-Object Windows.Forms.TextBox
+$log.Location = New-Object Drawing.Point(22,226)
+$log.Size = New-Object Drawing.Size(760,343)
 $log.Multiline = $true
 $log.ScrollBars = "Vertical"
 $log.ReadOnly = $true
@@ -211,11 +224,48 @@ $build.Add_Click({
     if (-not $mapped) { Say "Cannot access the extracted Project Vorticity folder from WSL."; return }
     $linuxQ = Bash-Quote $mapped.Trim()
 
-    $setup.Enabled = $false; $build.Enabled = $false; $scan.Enabled = $false
+    $setup.Enabled = $false; $build.Enabled = $false; $configure.Enabled = $false; $run.Enabled = $false; $scan.Enabled = $false
     $status.Text = "Building WRF and WPS. This may take a long time..."
     Say "Starting automated GNU/OpenMPI WRF and WPS build. Keep this window open."
     $command = "cd $linuxQ && PV_JOBS=2 ./scripts/build-wrf-wps.sh"
-    Start-WslTask $d $command $false $null
+    $afterBuild = {
+        param($code)
+        $setup.Enabled = $true; $build.Enabled = $true; $configure.Enabled = $true; $run.Enabled = $true; $scan.Enabled = $true
+        $status.Text = "WRF/WPS build finished (exit code $code)."
+    }.GetNewClosure()
+    Start-WslTask $d $command $false $afterBuild
+})
+
+$configure.Add_Click({
+    if (-not $combo.SelectedItem) { [Windows.Forms.MessageBox]::Show("Select an installed Ubuntu distribution first.") | Out-Null; return }
+    $d = [string]$combo.SelectedItem
+    $repoFolder = Split-Path -Parent $PSScriptRoot
+    $mapped = & wsl.exe -d $d -- wslpath -a "$repoFolder" 2>$null
+    if (-not $mapped) { Say "Cannot access the extracted Project Vorticity folder from WSL."; return }
+    $linuxQ = Bash-Quote $mapped.Trim()
+    $configPath = & wsl.exe -d $d -- bash -lc "mkdir -p ~/ProjectVorticity/config; if [ ! -f ~/ProjectVorticity/config/forecast.env ]; then cp $linuxQ/config/example-forecast.env ~/ProjectVorticity/config/forecast.env; fi; wslpath -w ~/ProjectVorticity/config/forecast.env" 2>&1
+    if ($LASTEXITCODE -ne 0 -or -not $configPath) { Say "Could not prepare the forecast configuration: $configPath"; return }
+    Start-Process notepad.exe -ArgumentList ([string]$configPath[-1])
+    Say "Opened forecast.env. Set dates, domain centre, GRIB folder, geography folder and Vtable, then save it."
+})
+
+$run.Add_Click({
+    if (-not $combo.SelectedItem) { [Windows.Forms.MessageBox]::Show("Select an installed Ubuntu distribution first.") | Out-Null; return }
+    $d = [string]$combo.SelectedItem
+    $repoFolder = Split-Path -Parent $PSScriptRoot
+    $mapped = & wsl.exe -d $d -- wslpath -a "$repoFolder" 2>$null
+    if (-not $mapped) { Say "Cannot access the extracted Project Vorticity folder from WSL."; return }
+    $linuxQ = Bash-Quote $mapped.Trim()
+    $setup.Enabled = $false; $build.Enabled = $false; $configure.Enabled = $false; $run.Enabled = $false; $scan.Enabled = $false
+    $status.Text = "Running WPS preprocessing and WRF forecast..."
+    Say "Starting real-data forecast. The run may take a long time."
+    $command = "cd $linuxQ && ./scripts/run-forecast.sh"
+    $afterForecast = {
+        param($code)
+        $setup.Enabled = $true; $build.Enabled = $true; $configure.Enabled = $true; $run.Enabled = $true; $scan.Enabled = $true
+        $status.Text = "Forecast finished (exit code $code)."
+    }.GetNewClosure()
+    Start-WslTask $d $command $false $afterForecast
 })
 
 Scan-Distros
