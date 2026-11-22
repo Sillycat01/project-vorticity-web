@@ -1,32 +1,34 @@
-# Roadmap
+# Development roadmap
 
-## Phase 0 — repository bootstrap
-- [x] README and configuration template
-- [x] WSL/Ubuntu and dependency diagnostics
-- [x] Scan for existing installations before actions
-- [x] Prompt before installing packages
-- [x] Clone source without deleting existing directories or resetting local changes
+## Bootstrap and download
+- [x] Repository scaffold and docs
+- [x] Ubuntu/WSL diagnostics and existing-install scan
+- [x] Dependency/source installer
+- [x] Windows graphical launcher
+- [x] Source ZIP download instructions
+- [ ] Validate graphical install on clean Windows + WSL2
 
-## Phase 1 — tested build profiles
-- [ ] Pin validated upstream versions
-- [ ] Detect compiler, NetCDF and MPI compatibility
-- [ ] WRF serial/MPI build profiles and validation
-- [ ] WPS build against matching libraries
-- [ ] Log collection, error summaries and resume support
+## Build pipeline
+- [x] Initial WRF/WPS build driver and logs
+- [ ] Validate WRF 4.8.0 + WPS 4.7.0 compatibility
+- [ ] Automated compiler/MPI profile selection
+- [ ] CI build and runtime smoke test
+- [ ] Fully graphical build controls
 
-## Phase 2 — preprocessing/data
-- [ ] Guided domain configuration
-- [ ] Supported data provider integrations
-- [ ] geogrid/ungrib/metgrid configuration and checks
-- [ ] Input file verification and disk-space checks
+## Preprocessing and data
+- [ ] Domain wizard and namelist.wps editor
+- [ ] Geogrid static-data manager
+- [ ] GRIB data provider integrations
+- [ ] Vtable selection and ungrib/metgrid orchestration
+- [ ] Input validation and preprocessing reports
 
-## Phase 3 — model runs
-- [ ] Namelist generator with validated presets
-- [ ] Run management, monitoring, logs, cancel/restart
-- [ ] Output detection and visualization
+## Forecast and visualization
+- [ ] namelist.input wizard
+- [ ] WRF run manager, progress, restart and cancellation
+- [ ] Output inspection and plotting
+- [ ] Meteorological map viewer
 
-## Phase 4 — desktop/web UI
-- [ ] Guided installation/system check
-- [ ] Domain/data/forecast wizard
-- [ ] Run controls and diagnostics
-- [ ] Plot and map explorer
+## Distribution
+- [x] GitHub ZIP source download
+- [ ] Signed Windows installer
+- [ ] Automated releases and end-to-end tests
