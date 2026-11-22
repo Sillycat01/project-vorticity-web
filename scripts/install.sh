@@ -21,7 +21,7 @@ for cmd in gcc gfortran git make nc-config nf-config mpif90; do
 done
 echo "Plan: install missing Ubuntu build packages, then clone WRF and WPS sources."
 echo "Existing directories are never deleted, and git checkouts are not reset."
-read -r -p "Proceed? [y/N] " confirm
+if [[ "${PV_ASSUME_YES:-0}" == "1" ]]; then confirm="y"; else read -r -p "Proceed? [y/N] " confirm; fi
 [[ "$confirm" =~ ^[Yy]$ ]] || { echo "Cancelled."; exit 0; }
 if [[ "${PV_INSTALL_DEPS:-true}" == "true" ]]; then
   command -v apt-get >/dev/null || { echo "apt-get unavailable; install dependencies manually."; exit 2; }
@@ -37,11 +37,11 @@ clone_source() {
     echo "ERROR: $target exists but is not a Git checkout. Leaving it untouched." >&2
     return 3
   else
-    git clone "$repo" "$target"
+    git clone --depth 1 --branch "$ref" "$repo" "$target"
   fi
   if [[ -n "$ref" ]]; then git -C "$target" checkout "$ref"; fi
 }
 clone_source "$PV_WRF_REPO" "$PV_SRC/WRF" "$PV_WRF_REF"
 clone_source "$PV_WPS_REPO" "$PV_SRC/WPS" "$PV_WPS_REF"
-echo "Dependency and source stage complete. WRF/WPS compile is not automated in this preview."
+echo "Dependency and source stage complete. Use scripts/build-wrf-wps.sh for the compiler configuration and build stage."
 echo "Check status with: $ROOT_DIR/scripts/status.sh"
