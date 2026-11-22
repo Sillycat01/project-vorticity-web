@@ -91,7 +91,8 @@ function Start-WslTask([string]$distro, [string]$command, [bool]$asRoot, [script
         param($sender,$e)
         if ($e.Data) {
             $line = $e.Data
-            $form.BeginInvoke([Action]{ Say $line }.GetNewClosure()) | Out-Null
+            $ui = { Say $line }.GetNewClosure()
+            $form.BeginInvoke([Action]$ui) | Out-Null
         }
     }.GetNewClosure()
     $errHandler = {
@@ -103,7 +104,7 @@ function Start-WslTask([string]$distro, [string]$command, [bool]$asRoot, [script
     }.GetNewClosure()
     $exitHandler = {
         $exitCode = $p.ExitCode
-        $form.BeginInvoke([Action]{
+        $ui = {
             if ($onComplete) { & $onComplete $exitCode }
             else {
                 $setup.Enabled = $true
@@ -111,7 +112,8 @@ function Start-WslTask([string]$distro, [string]$command, [bool]$asRoot, [script
                 $scan.Enabled = $true
                 $status.Text = "Finished (exit code $exitCode)."
             }
-        }.GetNewClosure()) | Out-Null
+        }.GetNewClosure()
+        $form.BeginInvoke([Action]$ui) | Out-Null
     }.GetNewClosure()
 
     $p.add_OutputDataReceived($outHandler)
