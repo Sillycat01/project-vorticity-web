@@ -245,7 +245,8 @@ $configure.Add_Click({
     $linuxQ = Bash-Quote $mapped.Trim()
     $configPath = & wsl.exe -d $d -- bash -lc "mkdir -p ~/ProjectVorticity/config; if [ ! -f ~/ProjectVorticity/config/forecast.env ]; then cp $linuxQ/config/example-forecast.env ~/ProjectVorticity/config/forecast.env; fi; wslpath -w ~/ProjectVorticity/config/forecast.env" 2>&1
     if ($LASTEXITCODE -ne 0 -or -not $configPath) { Say "Could not prepare the forecast configuration: $configPath"; return }
-    Start-Process notepad.exe -ArgumentList ([string]$configPath[-1])
+    $configWinPath = [string]($configPath | Select-Object -Last 1)
+    Start-Process notepad.exe -ArgumentList ('"' + $configWinPath.Trim() + '"')
     Say "Opened forecast.env. Set dates, domain centre, GRIB folder, geography folder and Vtable, then save it."
 })
 
