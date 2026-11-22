@@ -124,7 +124,7 @@ cat > "$WPS_WORK/namelist.wps" <<EOF
  truelat1  = $PV_TRUELAT1,
  truelat2  = $PV_TRUELAT2,
  stand_lon = $PV_STAND_LON,
- geog_data_path = '$PV_GEOG_DIR',
+ geog_data_path = '$WPS_WORK/WPS_GEOG',
 /
 &ungrib
  out_format = 'WPS',
@@ -233,7 +233,6 @@ cp "$WPS_DIR/link_grib.csh" "$WPS_WORK/"
 cp "$WPS_DIR/ungrib/Variable_Tables/Vtable.$PV_VTABLE" "$WPS_WORK/Vtable"
 cd "$WPS_WORK"
 ln -sfn "$PV_GEOG_DIR" ./WPS_GEOG
-sed -i "s|$PV_GEOG_DIR|$WPS_WORK/WPS_GEOG|g" namelist.wps
 echo "[2/6] Running geogrid..."
 ./geogrid.exe
 echo "[3/6] Linking GRIB files and running ungrib..."
