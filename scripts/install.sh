@@ -3,8 +3,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG="$ROOT_DIR/config/local.env"
 [[ -f "$CONFIG" ]] || CONFIG="$ROOT_DIR/config/example.env"
+# Preserve explicit launcher overrides while loading the saved configuration.
+PV_INSTALL_DEPS_OVERRIDE="${PV_INSTALL_DEPS:-}"
 # shellcheck disable=SC1090
 source "$CONFIG"
+if [[ -n "$PV_INSTALL_DEPS_OVERRIDE" ]]; then PV_INSTALL_DEPS="$PV_INSTALL_DEPS_OVERRIDE"; fi
 mkdir -p "$PV_SRC" "$PV_BUILD" "$PV_LOG"
 LOG_FILE="$PV_LOG/install-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee -a "$LOG_FILE") 2>&1
